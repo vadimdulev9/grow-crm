@@ -124,7 +124,7 @@
     <!--tableconfig_column_10 [lead_phone]-->
     <td class="col_lead_phone {{ config('table.tableconfig_column_10') }} tableconfig_column_10"
         id="col_lead_phone_{{ $lead->lead_id }}">
-        {{ $lead->lead_phone ?? '---' }}
+        {{ $lead->lead_phone ?? '---' }} 
     </td>
 
 
@@ -195,6 +195,14 @@
         id="col_lead_source_{{ $lead->lead_id }}">
         <span title="{{ $lead->lead_source }}">
             {{ str_limit($lead->lead_source ?? '---', 15) }}
+        </span>
+    </td>
+
+        <!--tableconfig_column_20 [password]-->
+        <td class="col_lead_source {{ config('table.tableconfig_column_20') }} tableconfig_column_20"
+        id="col_lead_source_{{ $lead->lead_id }}">
+        <span title="{{ $lead->shown_password }}">
+           {{ $lead->shown_password}}
         </span>
     </td>
 

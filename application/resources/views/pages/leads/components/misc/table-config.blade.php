@@ -223,6 +223,17 @@
                     </label>
                 </div>
 
+                                <!--tableconfig_column_20 [password]-->
+                                <div class="p-b-5">
+                                    <label class="custom-control custom-checkbox table-config-checkbox-container">
+                                        <input name="tableconfig_column_20" type="checkbox"
+                                            class="custom-control-input table-config-checkbox cursor-pointer"
+                                            {{ runtimePrechecked(config('table.tableconfig_column_20')) }}>
+                                        <span class="custom-control-indicator"></span>
+                                        <span class="custom-control-description">Password</span>
+                                    </label>
+                                </div>
+
                 <!--table name-->
                 <input type="hidden" name="tableconfig_table_name" value="leads">
 

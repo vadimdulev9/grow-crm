@@ -94,6 +94,7 @@ class Index {
      *   tableconfig_column_17 [lead_converted_by_userid]
      *   tableconfig_column_18 [lead_converted_date]
      *   tableconfig_column_19 [lead_source]
+     *   tableconfig_column_20 [password]
      *
      */
     private function tableConfig() {
