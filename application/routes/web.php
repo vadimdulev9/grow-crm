@@ -348,6 +348,7 @@ Route::group(['prefix' => 'leads'], function () {
     Route::post("/{lead}/update-category", "Leads@updateCategory")->where('lead', '[0-9]+');
     Route::post("/{lead}/update-contacted", "Leads@updateContacted")->where('lead', '[0-9]+');
     Route::post("/{lead}/update-phone", "Leads@updatePhone")->where('lead', '[0-9]+');
+    Route::post("/{lead}/update-password", "Leads@updatePassword")->where('lead', '[0-9]+');
     Route::post("/{lead}/update-email", "Leads@updateEmail")->where('lead', '[0-9]+');
     Route::post("/{lead}/update-source", "Leads@updateSource")->where('lead', '[0-9]+');
     Route::post("/{lead}/update-organisation", "Leads@updateOrganisation")->where('lead', '[0-9]+');

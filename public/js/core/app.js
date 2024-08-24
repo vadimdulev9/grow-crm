@@ -704,6 +704,27 @@ function NXBootCards() {
             nxAjaxUxRequest($(this));
         });
 
+                /**-------------------------------------------------------------
+         * EDITING LEAD PASSWORD
+         * ------------------------------------------------------------*/
+                $(document).off('click', '#card-lead-password').on('click', '#card-lead-password', function () {
+                    var current_value = ($(this).html() == '---') ? '' : $(this).html();
+                    $(".popover-body").find("#lead_password").val(current_value);
+                });
+                $(document).off('click', '#card-leads-update-password-button').on('click', '#card-leads-update-password-button', function () {
+                    //update the buttons parent popover
+                    $(this).attr('data-form-id', $(this).closest('.popover').attr('id'));
+                    //reset data & add loading class
+                    var $card_display_element = $("#card-lead-password");
+                    $card_display_element.html('---');
+                    $card_display_element.attr('data-value', '');
+                    $card_display_element.addClass('loading');
+                    //close static popovers
+                    $('.js-card-settings-button-static').popover('hide');
+                    //send request
+                    nxAjaxUxRequest($(this));
+                });
+
 
         /**-------------------------------------------------------------
          * EDITING LEAD EMAIL
