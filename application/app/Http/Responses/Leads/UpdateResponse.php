@@ -8,13 +8,16 @@
  *----------------------------------------------------------------------------------*/
 
 namespace App\Http\Responses\Leads;
+
 use Illuminate\Contracts\Support\Responsable;
 
-class UpdateResponse implements Responsable {
+class UpdateResponse implements Responsable
+{
 
     private $payload;
 
-    public function __construct($payload = array()) {
+    public function __construct($payload = array())
+    {
         $this->payload = $payload;
     }
 
@@ -24,19 +27,22 @@ class UpdateResponse implements Responsable {
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function toResponse($request) {
+    public function toResponse($request)
+    {
 
         //set all data to arrays
         foreach ($this->payload as $key => $value) {
             $$key = $value;
         }
 
+
         //update
         $html = view('pages/leads/components/table/ajax', compact('leads'))->render();
         $jsondata['dom_html'][] = array(
             'selector' => "#lead_" . $leads->first()->lead_id,
             'action' => 'replace-with',
-            'value' => $html);
+            'value' => $html
+        );
 
         //assigned update
         if (isset($type) && $type == 'update-assigned') {
@@ -45,13 +51,13 @@ class UpdateResponse implements Responsable {
             $jsondata['dom_html'][] = array(
                 'selector' => "#lead-assigned-container",
                 'action' => 'replace',
-                'value' => $html);
+                'value' => $html
+            );
             $jsondata['dom_classes'][] = [
                 'selector' => '#lead-assigned-container',
                 'action' => 'remove',
                 'value' => 'loading-placeholder',
             ];
-
         }
 
         //update name
@@ -59,11 +65,13 @@ class UpdateResponse implements Responsable {
             $jsondata['dom_html'][] = array(
                 'selector' => "#card-lead-firstname-containter",
                 'action' => 'replace',
-                'value' => $firstname);
+                'value' => $firstname
+            );
             $jsondata['dom_html'][] = array(
                 'selector' => "#card-lead-lastname-containter",
                 'action' => 'replace',
-                'value' => $firstlast);
+                'value' => $firstlast
+            );
             $jsondata['dom_classes'][] = [
                 'selector' => '#card-lead-element-container-name',
                 'action' => 'remove',
@@ -81,7 +89,8 @@ class UpdateResponse implements Responsable {
             $jsondata['dom_classes'][] = array(
                 'selector' => '#card-lead-value',
                 'action' => 'remove',
-                'value' => 'loading');
+                'value' => 'loading'
+            );
             $jsondata['dom_attributes'][] = [
                 'selector' => "#card-lead-value",
                 'attr' => 'data-value',
@@ -112,6 +121,21 @@ class UpdateResponse implements Responsable {
             ];
             $jsondata['dom_classes'][] = [
                 'selector' => '#card-lead-phone',
+                'action' => 'remove',
+                'value' => 'loading',
+            ];
+        }
+
+        //[other] update password
+
+        if (isset($type) && $type == 'update-password') {
+            $jsondata['dom_html'][] = [
+                'selector' => "#card-lead-password",
+                'action' => 'replace',
+                'value' => ($password == '') ? '---' : $password,
+            ];
+            $jsondata['dom_classes'][] = [
+                'selector' => '#card-lead-password',
                 'action' => 'remove',
                 'value' => 'loading',
             ];
@@ -159,7 +183,8 @@ class UpdateResponse implements Responsable {
         $jsondata['dom_html'][] = array(
             'selector' => "#card_lead_" . $leads->first()->lead_id,
             'action' => 'replace-with',
-            'value' => $html);
+            'value' => $html
+        );
 
         //close modal
         $jsondata['dom_visibility'][] = array('selector' => '#actionsModal', 'action' => 'close-modal');
@@ -167,5 +192,4 @@ class UpdateResponse implements Responsable {
         //response
         return response()->json($jsondata);
     }
-
 }
