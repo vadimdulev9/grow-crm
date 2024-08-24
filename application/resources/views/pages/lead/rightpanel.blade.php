@@ -107,6 +107,7 @@
             <span class="x-highlight">{{ $lead->lead_phone ?? '---' }}</span>
             @endif
         </div>
+        
 
         <!--email-->
         <div class="x-element"><i class="mdi mdi-email"></i> <span>{{ cleanLang(__('lang.email')) }}: </span>

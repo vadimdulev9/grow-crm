@@ -1,3 +1,5 @@
 .osp
 node-modules/*
-application/storage
+application/storage/cache/*
+application/storage/framework/cache/*
+application/storage/*
