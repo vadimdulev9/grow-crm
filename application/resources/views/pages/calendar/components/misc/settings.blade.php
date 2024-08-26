@@ -13,6 +13,7 @@
             <!--body-->
             <div class="r-panel-body">
 
+                <?php /* // Moved to general config
                 <!--events_display_date-->
                 <div class="filter-block m-b-30">
                     <div class="title">
@@ -53,7 +54,6 @@
                     </div>
                 </div>
 
-
                 <!--projects_display_date-->
                 <div class="filter-block m-b-30">
                     <div class="title">
@@ -73,6 +73,7 @@
                         </div>
                     </div>
                 </div>
+                */ ?>
 
                 @if(auth()->user()->is_admin)
                 <!--projects_display_date-->
