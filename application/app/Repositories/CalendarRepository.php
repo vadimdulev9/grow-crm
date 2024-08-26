@@ -177,7 +177,7 @@ class CalendarRepository {
         foreach ($rows as $project) {
 
             //set event dates based on users preferences
-            switch (auth()->user()->pref_calendar_dates_projects) {
+            switch (config('settings.pref_calendar_dates.projects', 'start')) {
             case 'start':
                 $start = $project->project_date_start;
                 $end = $project->project_date_start;
@@ -339,7 +339,7 @@ class CalendarRepository {
         foreach ($rows as $task) {
 
             //set event dates based on users preferences
-            switch (auth()->user()->pref_calendar_dates_tasks) {
+            switch (config('settings.pref_calendar_dates.tasks', 'start')) {
             case 'start':
                 $start = $task->task_date_start;
                 $end = $task->task_date_start;
@@ -513,7 +513,7 @@ class CalendarRepository {
             }
 
             //set event dates based on users preferences
-            switch (auth()->user()->pref_calendar_dates_events) {
+            switch (config('settings.pref_calendar_dates.events', 'start')) {
             case 'start':
                 $start = $event_start;
                 $end = $event_start;
