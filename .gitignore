@@ -1,3 +1,4 @@
+.idea
 .osp
 node-modules/*
 application/storage/cache/*

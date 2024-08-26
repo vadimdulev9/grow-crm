@@ -260,6 +260,50 @@ function loadMoreButtonUrl($page = '', $type = '') {
     return $url;
 }
 
+
+function loadPaginationElements(\Illuminate\Pagination\LengthAwarePaginator $paginator, $type = '')
+{
+    //get an array of all the current url queries
+    $queries = request()->query();
+
+    $urls = [];
+    foreach ($paginator->linkCollection() as $element) {
+
+        //update/add page number
+        $queries = [];
+        $queries['source'] = $type;
+        $queries['action'] = 'load-paginated';
+        if (preg_match('/page=(\d+)/', $element['url'], $matches) && isset($matches[1])) {
+            $queries['page'] = $matches[1];
+        }
+
+        // a full url with updated value
+        $url = request()->fullUrlWithQuery($queries);
+
+        //remove unwanted (system_languages%5B2%5D=afrikaans) etc from the url. These are coming from the languages dropdown
+        $url = preg_replace('/&system_languages%5B[\d]+%5D=[\w]+/', '', $url);
+        $url = preg_replace('/&visibility_left_menu_toggle_button=[\w]+/', '', $url);
+        $url = preg_replace('/&system_language=[\w]+/', '', $url);
+        $url = preg_replace('/&user_has_due_reminder=[\w]+/', '', $url);
+        $url = preg_replace('/&toggle=[\w]+/', '', $url);
+
+        //fix - enforce ssl
+        if (env('ENFORCE_SSL')) {
+            $url = str_replace('http://', 'https://', $url);
+        }
+
+        $urls[] = [
+            'url' => $url,
+            'label' => $element['label'],
+            'active' => $element['active'] === true,
+            'enabled' => !empty($queries['page'])
+        ];
+    }
+
+    //return urls
+    return $urls;
+}
+
 /**
  * takes url coming from sorting menu links and flips
  * the current sorting to opposite, for next time

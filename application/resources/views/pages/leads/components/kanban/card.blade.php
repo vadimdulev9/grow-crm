@@ -108,7 +108,7 @@
             @endif
             <!--date created-->
             @if(config('system.settings_leads_kanban_date_created') == 'show')
-            <span><strong>{{ cleanLang(__('lang.created')) }}:</strong> {{ runtimeDate($lead->lead_created) }}</span>
+            <span><strong>{{ cleanLang(__('lang.created')) }}:</strong> {{ runtimeDate($lead->lead_created) }} {{ runtimeTime($lead->lead_created) }}</span>
             @endif
             <!--date contacted-->
             @if(config('system.settings_leads_kanban_date_contacted') == 'show')

@@ -796,6 +796,12 @@ class Leads extends Controller
             $has_reminder = false;
         }
 
+        //extra buttons
+        $extra_buttons['lead_arrows'] = [
+            'prev_id' => $this->leadrepo->getPrevId($id),
+            'next_id' => $this->leadrepo->getNextId($id)
+        ];
+
         //reponse payload
         $payload = [
             'page' => $this->pageSettings('lead', $lead),
@@ -816,6 +822,7 @@ class Leads extends Controller
             'has_reminder' => $has_reminder,
             'progress' => $this->checklistProgress($checklists),
             'attachment_tags' => $attachment_tags,
+            'extra_buttons' => $extra_buttons
         ];
 
         //showing just the tab
