@@ -43,7 +43,7 @@
     <!--tableconfig_column_3 [lead_created]-->
     <td class="col_lead_created {{ config('table.tableconfig_column_3') }} tableconfig_column_3"
         id="leads_col_date_{{ $lead->lead_id }}">
-        {{ runtimeDate($lead->lead_created) }}
+        {{ runtimeDate($lead->lead_created) }} {{ runtimeTime($lead->lead_created) }}
     </td>
 
 
