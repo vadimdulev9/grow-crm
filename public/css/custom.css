@@ -1,0 +1,37 @@
+#card-modal-arrows {
+    display: flex;
+    position: absolute;
+    left: -118px;
+    top: 20px;
+}
+
+@media (max-width: 990px) {
+    #card-modal-arrows {
+        position: relative;
+        left: 0;
+        top: 0;
+        margin-bottom: 25px;
+    }
+}
+
+#card-modal-arrows.loading::after {
+    left: calc(50% - 140px);
+    top: calc(50% - 12px)
+}
+
+#card-modal-arrow-left,
+#card-modal-arrow-right {
+    background-color: #e9f0f3 !important;
+    color: #778993 !important;
+    font-size: 1.5rem;
+    padding: 2px 10px 1px 10px;
+}
+
+#card-modal-arrow-left.disabled,
+#card-modal-arrow-right.disabled {
+    opacity: .5;
+}
+
+.card-title-edit {
+    max-width: 75%;
+}

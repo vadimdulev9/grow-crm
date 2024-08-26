@@ -602,4 +602,31 @@ class LeadRepository {
 
     }
 
+    /**
+     * Get previous lead id
+     * @param int $pivotId
+     * @return int|null
+     */
+    public function getPrevId(int $pivotId)
+    {
+        return $this->leads->newQuery()
+            ->where('lead_visibility', 'visible')
+            ->where('lead_id', '<', $pivotId)
+            ->orderBy('lead_id', 'desc')
+            ->value('lead_id');
+    }
+
+    /**
+     * Get next lead id
+     * @param int $pivotId
+     * @return int|null
+     */
+    public function getNextId(int $pivotId)
+    {
+        return $this->leads->newQuery()
+            ->where('lead_visibility', 'visible')
+            ->where('lead_id', '>', $pivotId)
+            ->orderBy('lead_id', 'asc')
+            ->value('lead_id');
+    }
 }
