@@ -123,7 +123,7 @@ class IndexListResponse implements Responsable {
             $jsondata['dom_html'][] = [
                 'selector' => '.active-bread-crumb',
                 'action' => 'replace',
-                'value' => strtoupper(__('lang.leads')),
+                'value' => strtoupper(__('lang.leads')) . " ({$leads->total()})"
             ];
 
             //reload stats widget

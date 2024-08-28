@@ -352,7 +352,7 @@ class Leads extends Controller
 
         //reponse payload
         $payload = [
-            'page' => $this->pageSettings('leads'),
+            'page' => $this->pageSettings('leads', ['leads_total' => $leads->total()]),
             'leads' => $leads,
             'stats' => $this->statsWidget(),
             'categories' => $categories,
@@ -3894,7 +3894,8 @@ class Leads extends Controller
         //common settings
         $page = [
             'crumbs' => [
-                __('lang.leads'),
+                __('lang.leads')
+                    . (isset($data['leads_total']) ? " ({$data['leads_total']})" : ""),
             ],
             'crumbs_special_class' => 'list-pages-crumbs',
             'page' => 'leads',
