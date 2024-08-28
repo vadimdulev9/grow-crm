@@ -1,4 +1,4 @@
-@foreach($leads as $lead)
+@foreach($leads as $index => $lead)
 <!--each row-->
 <tr id="lead_{{ $lead->lead_id }}">
     @if(config('visibility.leads_col_checkboxes'))
@@ -20,7 +20,7 @@
         <span title="{{ $lead->full_name }}">
             <a class="show-modal-button reset-card-modal-form js-ajax-ux-request" data-toggle="modal"
                 href="javascript:void(0)" data-target="#cardModal"
-                data-url="{{ urlResource('/leads/'.$lead->lead_id) }}" data-loading-target="main-top-nav-bar"
+                data-url="{{ urlResourceWithOffset('/leads/'.$lead->lead_id, $index) }}" data-loading-target="main-top-nav-bar"
                 id="table_lead_title_{{ $lead->lead_id }}">
                 <span title="{{ $lead->lead_title }}">{{ str_limit($lead->full_name, 15) }}</span>
         </span>
@@ -33,7 +33,7 @@
         <span title="{{ $lead->lead_title }}">
             <a class="show-modal-button reset-card-modal-form js-ajax-ux-request" data-toggle="modal"
                 href="javascript:void(0)" data-target="#cardModal"
-                data-url="{{ urlResource('/leads/'.$lead->lead_id) }}" data-loading-target="main-top-nav-bar"
+                data-url="{{ urlResourceWithOffset('/leads/'.$lead->lead_id, $index) }}" data-loading-target="main-top-nav-bar"
                 id="table_lead_title_{{ $lead->lead_id }}">
                 <span title="{{ $lead->lead_title }}">{{ str_limit($lead->lead_title, 20) }}</span></a>
         </span>
@@ -252,7 +252,7 @@
             <!--view-->
             <button type="button" title="{{ cleanLang(__('lang.view')) }}"
                 class="data-toggle-action-tooltip btn btn-outline-success btn-circle btn-sm show-modal-button reset-card-modal-form js-ajax-ux-request"
-                data-toggle="modal" data-target="#cardModal" data-url="{{ urlResource('/leads/'.$lead->lead_id) }}"
+                data-toggle="modal" data-target="#cardModal" data-url="{{ urlResourceWithOffset('/leads/'.$lead->lead_id, $index) }}"
                 data-loading-target="main-top-nav-bar">
                 <i class="ti-new-window"></i>
             </button>
