@@ -1380,6 +1380,41 @@ function urlResource($url = '') {
     return url($url);
 }
 
+function urlResourceWithOffset($url = '', $offset = 0) {
+
+    $queryString = request()->getQueryString();
+    $question = request()->getBaseUrl().request()->getPathInfo() === '/' ? '/?' : '?';
+
+    if (preg_match('/page=(\d+)/', $queryString, $matches) && isset($matches[1])) {
+        $page = $matches[1];
+    } else {
+        $page = 1;
+    }
+
+    $offset += ($page - 1) * config('system.settings_system_kanban_pagination_limits');
+
+    if ($queryString) {
+        //remove unwanted (system_languages%5B2%5D=afrikaans) etc from the url. These are coming from the languages dropdown
+        $queryString = preg_replace('/&system_languages%5B[\d]+%5D=[\w]+/', '', $queryString);
+        $queryString = preg_replace('/&visibility_left_menu_toggle_button=[\w]+/', '', $queryString);
+        $queryString = preg_replace('/&system_language=[\w]+/', '', $queryString);
+        $queryString = preg_replace('/&user_has_due_reminder=[\w]+/', '', $queryString);
+        $queryString = preg_replace('/&toggle=[\w]+/', '', $queryString);
+        $queryString = preg_replace('/&source=[\w]+/', '', $queryString);
+        $queryString = preg_replace('/(&|\b)offset=[\w]+/', '', $queryString);
+        $queryString = preg_replace('/(&|\b)page=[\w]+/', '', $queryString);
+    }
+
+    if ($searchQuery = request()->input('search_query')) {
+        $queryString .= (!empty($queryString) ? '&' : '') . 'search_query=' . $searchQuery;
+    }
+
+    $queryString .= (!empty($queryString) ? '&' : '') . 'offset=' . $offset;
+
+    //return url
+    return $url.$question.$queryString;
+}
+
 /**
  * allow for dynamic manipulation of hard coded urls
  * @param string $url url string from balde or response etc
