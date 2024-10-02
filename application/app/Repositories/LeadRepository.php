@@ -255,6 +255,8 @@ class LeadRepository {
                 $leads->orderBy('category_name', request('sortorder'));
                 break;
             }
+            // fix same values in sorted columns
+            $leads->orderBy('lead_id', request('sortorder'));
         } else {
             //default sorting
             if (request('query_type') == 'kanban') {
@@ -602,4 +604,218 @@ class LeadRepository {
 
     }
 
+    /**
+     * Search prev/next model id
+     * @param int $id
+     * @return array [prev_id|null, current_id, next_id|null]
+     */
+    public function searchPrevNext($id, $data = []) {
+
+        if (!isset($data['offset']) || !is_numeric($data['offset'])) {
+            return [
+                'prev_id' => null,
+                'current_id' => $id,
+                'next_id' => null
+            ];
+        }
+
+        $leads = $this->leads->newQuery();
+
+        //default - always apply filters
+        if (!isset($data['apply_filters'])) {
+            $data['apply_filters'] = true;
+        }
+
+        //joins
+        $leads->leftJoin('categories', 'categories.category_id', '=', 'leads.lead_categoryid');
+        $leads->leftJoin('users', 'users.id', '=', 'leads.lead_creatorid');
+        $leads->leftJoin('leads_status', 'leads_status.leadstatus_id', '=', 'leads.lead_status');
+
+        //default where
+        $leads->whereRaw("1 = 1");
+
+        //filter for active or archived (default to active) - do not use this when a lead id has been specified
+        if (!request()->filled('filter_show_archived_leads') && !request()->filled('filter_lead_state')) {
+            $leads->where('lead_active_state', 'active');
+        }
+
+        //filters: id
+        if (request()->filled('filter_lead_id')) {
+            $leads->where('lead_id', request('filter_lead_id'));
+        }
+
+        //do not show items that not yet ready (i.e exclude items in the process of being cloned that have status 'invisible')
+        $leads->where('lead_visibility', 'visible');
+
+        //apply filters
+        if ($data['apply_filters']) {
+
+            //filter archived leads
+            if (request()->filled('filter_lead_state') && (request('filter_lead_state') == 'active' || request('filter_lead_state') == 'archived')) {
+                $leads->where('lead_active_state', request('filter_lead_state'));
+            }
+
+            //filter: added date (start)
+            if (request()->filled('filter_lead_created_start')) {
+                $leads->whereDate('lead_created', '>=', request('filter_lead_created_start'));
+            }
+
+            //filter: added date (end)
+            if (request()->filled('filter_lead_created_end')) {
+                $leads->whereDate('lead_created', '<=', request('filter_lead_created_end'));
+            }
+
+            //filter: last contacted date (start)
+            if (request()->filled('filter_lead_last_contacted_start')) {
+                $leads->whereDate('lead_last_contacted', '>=', request('filter_lead_last_contacted_start'));
+            }
+
+            //filter: last contacted date (end)
+            if (request()->filled('filter_lead_last_contacted_end')) {
+                $leads->whereDate('lead_last_contacted', '<=', request('filter_lead_last_contacted_end'));
+            }
+
+            //filter: value (min)
+            if (request()->filled('filter_lead_value_min')) {
+                $leads->where('lead_value', '>=', request('filter_lead_value_min'));
+            }
+
+            //filter: value (max)
+            if (request()->filled('filter_lead_value_max')) {
+                $leads->where('lead_value', '<=', request('filter_lead_value_max'));
+            }
+
+            //filter: board
+            if (request()->filled('filter_single_lead_status')) {
+                $leads->where('lead_status', request('filter_single_lead_status'));
+            }
+
+            //filter status
+            if (is_numeric(request('filter_lead_status'))) {
+                $leads->where('lead_status', request('filter_lead_status'));
+            }
+            if (is_array(request('filter_lead_status')) && !empty(array_filter(request('filter_lead_status')))) {
+                $leads->whereIn('lead_status', request('filter_lead_status'));
+            }
+
+            //filter assigned
+            if (is_array(request('filter_assigned')) && !empty(array_filter(request('filter_assigned')))) {
+                $leads->whereHas('assigned', function ($query) {
+                    $query->whereIn('leadsassigned_userid', request('filter_assigned'));
+                });
+            }
+
+            //filter my leads (using the actions button)
+            if (request()->filled('filter_my_leads')) {
+                //leads assigned to me
+                $leads->whereHas('assigned', function ($query) {
+                    $query->whereIn('leadsassigned_userid', [auth()->id()]);
+                });
+            }
+
+            //filter: tags
+            if (is_array(request('filter_tags')) && !empty(array_filter(request('filter_tags')))) {
+                $leads->whereHas('tags', function ($query) {
+                    $query->whereIn('tag_title', request('filter_tags'));
+                });
+            }
+
+        }
+        //custom fields filtering
+        if (request('action') == 'search') {
+            if ($fields = \App\Models\CustomField::Where('customfields_type', 'leads')->Where('customfields_show_filter_panel', 'yes')->get()) {
+                foreach ($fields as $field) {
+                    //field name, as posted by the filter panel (e.g. filter_ticket_custom_field_70)
+                    $field_name = 'filter_' . $field->customfields_name;
+                    if ($field->customfields_name != '' && request()->filled($field_name)) {
+                        if (in_array($field->customfields_datatype, ['number', 'decimal', 'dropdown', 'date', 'checkbox'])) {
+                            $leads->Where($field->customfields_name, request($field_name));
+                        }
+                        if (in_array($field->customfields_datatype, ['text', 'paragraph'])) {
+                            $leads->Where($field->customfields_name, 'LIKE', '%' . request($field_name) . '%');
+                        }
+                    }
+                }
+            }
+        }
+
+        //search: various client columns and relationships (where first, then wherehas)
+        if (request()->filled('search_query') || request()->filled('query')) {
+            $leads->where(function ($query) {
+                $query->Where('lead_id', '=', request('search_query'));
+                $query->orWhere('lead_created', 'LIKE', '%' . date('Y-m-d', strtotime(request('search_query'))) . '%');
+                $query->orWhere('lead_last_contacted', 'LIKE', '%' . date('Y-m-d', strtotime(request('search_query'))) . '%');
+                $query->orWhereRaw("YEAR(lead_created) = ?", [request('search_query')]); //example binding
+                $query->orWhereRaw("YEAR(lead_last_contacted) = ?", [request('search_query')]); //example binding
+                $query->orWhere('lead_title', 'LIKE', '%' . request('search_query') . '%');
+                $query->orWhere('lead_firstname', 'LIKE', '%' . request('search_query') . '%');
+                $query->orWhere('lead_lastname', 'LIKE', '%' . request('search_query') . '%');
+                $query->orWhere('lead_email', '=', request('search_query'));
+                $query->orWhere('lead_company_name', 'LIKE', '%' . request('search_query') . '%');
+                $query->orWhere('lead_street', 'LIKE', '%' . request('search_query') . '%');
+                $query->orWhere('lead_city', 'LIKE', '%' . request('search_query') . '%');
+                $query->orWhere('lead_state', 'LIKE', '%' . request('search_query') . '%');
+                $query->orWhere('lead_zip', 'LIKE', '%' . request('search_query') . '%');
+                $query->orWhere('lead_country', '=', request('search_query'));
+                $query->orWhere('lead_source', '=', request('search_query'));
+                $query->orWhere('leadstatus_title', '=', request('search_query'));
+                if (is_numeric(request('search_query'))) {
+                    $query->orWhere('lead_value', '=', request('search_query'));
+                }
+                $query->orWhereHas('tags', function ($q) {
+                    $q->where('tag_title', 'LIKE', '%' . request('search_query') . '%');
+                });
+            });
+
+        }
+
+        //sorting
+        if (in_array(request('sortorder'), array('desc', 'asc')) && request('orderby') != '') {
+            //direct column name
+            if (Schema::hasColumn('leads', request('orderby'))) {
+                $leads->orderBy(request('orderby'), request('sortorder'));
+            }
+            //others
+            switch (request('orderby')) {
+                case 'status':
+                    $leads->orderBy('leadstatus_title', request('sortorder'));
+                    break;
+                case 'lead_category_name':
+                    $leads->orderBy('category_name', request('sortorder'));
+                    break;
+            }
+            
+            // fix same values in sorted columns
+            $leads->orderBy('lead_id', request('sortorder'));
+            
+        } else {
+            //default sorting
+            if (request('query_type') == 'kanban') {
+                $leads->orderBy('lead_position', 'asc');
+            } else {
+                $leads->orderBy('lead_id', 'desc');
+            }
+        }
+
+        // Get the results and return them.
+
+        $offset = ($data['offset'] > 0) ? $data['offset'] - 1 : 0;
+        $limit  = ($data['offset'] > 0) ? 3 : 2;
+
+        $result = $leads->skip($offset)->take($limit)->pluck('lead_id')->toArray();
+
+        if ($data['offset'] == 0) {
+            return [
+                'prev_id' => null,
+                'current_id' => $result[0] ?? null,
+                'next_id' => $result[1] ?? null
+            ];
+        }
+
+        return [
+            'prev_id' => $result[0] ?? null,
+            'current_id' => $result[1] ?? null,
+            'next_id' => $result[2] ?? null
+        ];
+    }
 }

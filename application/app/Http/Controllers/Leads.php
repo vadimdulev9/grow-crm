@@ -352,7 +352,7 @@ class Leads extends Controller
 
         //reponse payload
         $payload = [
-            'page' => $this->pageSettings('leads'),
+            'page' => $this->pageSettings('leads', ['leads_total' => $leads->total()]),
             'leads' => $leads,
             'stats' => $this->statsWidget(),
             'categories' => $categories,
@@ -796,6 +796,13 @@ class Leads extends Controller
             $has_reminder = false;
         }
 
+        //extra buttons
+        $leadPrevNext = $this->leadrepo->searchPrevNext($id, ['offset' => request('offset')]);
+        $extra_buttons['lead_arrows'] = [
+            'prev_id' => $leadPrevNext['prev_id'],
+            'next_id' => $leadPrevNext['next_id']
+        ];
+
         //reponse payload
         $payload = [
             'page' => $this->pageSettings('lead', $lead),
@@ -816,6 +823,7 @@ class Leads extends Controller
             'has_reminder' => $has_reminder,
             'progress' => $this->checklistProgress($checklists),
             'attachment_tags' => $attachment_tags,
+            'extra_buttons' => $extra_buttons
         ];
 
         //showing just the tab
@@ -3887,7 +3895,8 @@ class Leads extends Controller
         //common settings
         $page = [
             'crumbs' => [
-                __('lang.leads'),
+                __('lang.leads')
+                    . (isset($data['leads_total']) ? " ({$data['leads_total']})" : ""),
             ],
             'crumbs_special_class' => 'list-pages-crumbs',
             'page' => 'leads',

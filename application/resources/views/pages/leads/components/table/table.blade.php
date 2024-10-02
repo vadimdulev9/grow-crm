@@ -251,6 +251,8 @@
                             <td colspan="20">
                                 <!--load more button-->
                                 @include('misc.load-more-button')
+                                    <?php /* @include('misc.load-more-button') */ ?>
+                                @include('pages.leads.components.misc.list-pagination')
                                 <!--load more button-->
                             </td>
                         </tr>

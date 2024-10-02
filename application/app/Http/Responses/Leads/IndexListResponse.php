@@ -44,6 +44,13 @@ class IndexListResponse implements Responsable {
                 $dom_action = 'append';
                 break;
 
+            //from the pagination button
+            case 'load-paginated':
+                $template = 'pages/leads/components/table/ajax';
+                $dom_container = '#leads-td-container';
+                $dom_action = 'replace';
+                break;
+
             //from the sorting links
             case 'sort':
                 $template = 'pages/leads/components/table/ajax';
@@ -116,7 +123,7 @@ class IndexListResponse implements Responsable {
             $jsondata['dom_html'][] = [
                 'selector' => '.active-bread-crumb',
                 'action' => 'replace',
-                'value' => strtoupper(__('lang.leads')),
+                'value' => strtoupper(__('lang.leads')) . " ({$leads->total()})"
             ];
 
             //reload stats widget
@@ -180,6 +187,23 @@ class IndexListResponse implements Responsable {
                 'action' => 'hide',
             ];
 
+            /**
+             * Maxfouri 2024-08-25
+             * Return pagination only for leads segment
+             */
+            if (request()->segment(1) === 'leads') {
+                $html = view('pages/leads/components/misc/list-pagination', [
+                    'page' => [
+                        'pagination_elements' => loadPaginationElements($leads, request('source')),
+                        'loading_target' => 'leads-td-container'
+                    ]
+                ])->render();
+                $jsondata['dom_html'][] = array(
+                    'selector' => '#list-pagination',
+                    'action' => 'replace-with',
+                    'value' => $html);
+            }
+
             //ajax response
             return response()->json($jsondata);
 
@@ -188,6 +212,11 @@ class IndexListResponse implements Responsable {
             $page['url'] = loadMoreButtonUrl($leads->currentPage() + 1, request('source'));
             $page['loading_target'] = 'leads-td-container';
             $page['visibility_show_load_more'] = ($leads->currentPage() < $leads->lastPage()) ? true : false;
+
+            if (request()->segment(1) === 'leads') {
+                $page['pagination_elements'] = loadPaginationElements($leads, request('source'));
+            }
+
             return view('pages/leads/wrapper', compact('page', 'leads', 'stats', 'categories', 'tags', 'statuses', 'fields'))->render();
         }
 

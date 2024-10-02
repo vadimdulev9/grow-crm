@@ -374,5 +374,19 @@ return [
     'custom_modules' => [
         'cs_affiliate' => false,
     ],
+
+    /**
+     * Show dates in calendar
+     *
+     * [available option]
+     *   - 'start'
+     *   - 'due'
+     *   - 'start_due'
+     */
+    'pref_calendar_dates' => [
+        'projects' => 'start',
+        'events' => 'start',
+        'tasks' => 'start'
+    ],
     
 ];

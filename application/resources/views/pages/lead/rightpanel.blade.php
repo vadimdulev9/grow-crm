@@ -463,3 +463,8 @@
             </div>
         </div>
     </div>
+
+    <!--arrows prev/next lead-->
+    @if (isset($extra_buttons) && isset($extra_buttons['lead_arrows']))
+        @include('pages.lead.components.arrows', ['lead_arrows' => $extra_buttons['lead_arrows']])
+    @endif
