@@ -124,7 +124,7 @@
     <!--tableconfig_column_10 [lead_phone]-->
     <td class="col_lead_phone {{ config('table.tableconfig_column_10') }} tableconfig_column_10"
         id="col_lead_phone_{{ $lead->lead_id }}">
-        <a href="https://b.didpbx.com/commoncrm/80500?token=wi8rufndvzywkeKUwNYROw-9058285729&from=101&to={{ $lead->lead_phone ?? '---' }}&cmd=makeCall">{{ $lead->lead_phone ?? '---' }} </a>
+        <a target="_blank" href="https://b.didpbx.com/commoncrm/11255?token=I_S3xOxrW2WJppWL8brcOsA-1727068812&from=101&to={{ $lead->lead_phone ?? '---' }}&cmd=makeCall">{{ $lead->lead_phone ?? '---' }} </a>
 
         
     </td>
