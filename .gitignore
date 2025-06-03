@@ -4,4 +4,5 @@ node-modules/*
 application/storage/cache/*
 application/storage/framework/cache/*
 application/storage/*
+application/storage
 .server_settings
